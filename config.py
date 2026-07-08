@@ -9,6 +9,8 @@ class Settings:
     GROQ_API_KEY = os.getenv("GROQ_API_KEY", "demo-key")
     GROQ_API_BASE = os.getenv("GROQ_API_BASE", "https://api.groq.com/openai/v1")
     MODEL_NAME = os.getenv("MODEL_NAME", "llama-3.3-70b-versatile")
+    SYNTHESIZER_TEMPERATURE = float(os.getenv("SYNTHESIZER_TEMPERATURE", "0.3"))
+    SYNTHESIZER_MAX_TOKENS = int(os.getenv("SYNTHESIZER_MAX_TOKENS", "600"))
     PINECONE_API_KEY = os.getenv("PINECONE_API_KEY", "")
     PINECONE_ENV = os.getenv("PINECONE_ENV", "us-east-1")
     PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME", "ichiba-support-docs")

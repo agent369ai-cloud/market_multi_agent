@@ -3,6 +3,7 @@ from typing import Dict, Any, List
 from openai import OpenAI
 
 from config import settings
+from prompts import render as render_prompt
 from tools import search_documents, query_sql, call_listing_api, load_memory, save_memory
 
 groq_client = OpenAI(api_key=settings.GROQ_API_KEY, base_url=settings.GROQ_API_BASE)
@@ -111,20 +112,12 @@ def synthesizer_agent(state: Dict[str, Any]) -> Dict[str, Any]:
     try:
         completion = groq_client.chat.completions.create(
             model=settings.MODEL_NAME,
+            temperature=settings.SYNTHESIZER_TEMPERATURE,
+            max_tokens=settings.SYNTHESIZER_MAX_TOKENS,
             messages=[
                 {
                     "role": "system",
-                    "content": (
-                        "You are a merchant support assistant for an e-commerce marketplace. "
-                        "Given a merchant's query, its detected issue route, and evidence gathered "
-                        "from internal systems, write a concise root-cause analysis followed by a "
-                        "section titled exactly 'Recommended next steps:' containing a numbered list. "
-                        "Only rely on the evidence provided. "
-                        f"Write the entire response in {response_language}, regardless of the "
-                        "language the evidence snippets are written in. Keep the heading "
-                        "'Recommended next steps:' in English even when the rest of the response "
-                        "is in Japanese, since it is checked verbatim downstream."
-                    ),
+                    "content": render_prompt("synthesizer_system", response_language=response_language),
                 },
                 {
                     "role": "user",
