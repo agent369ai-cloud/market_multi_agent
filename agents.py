@@ -102,6 +102,8 @@ def synthesizer_agent(state: Dict[str, Any]) -> Dict[str, Any]:
 
     query = state["query"]
     route = state["route"]
+    language = state.get("language", "en")
+    response_language = "Japanese" if language == "jp" else "English"
     evidence_block = "\n".join(
         f"- [{item['source_type']}] {item['content']}" for item in evidence
     )
@@ -117,7 +119,11 @@ def synthesizer_agent(state: Dict[str, Any]) -> Dict[str, Any]:
                         "Given a merchant's query, its detected issue route, and evidence gathered "
                         "from internal systems, write a concise root-cause analysis followed by a "
                         "section titled exactly 'Recommended next steps:' containing a numbered list. "
-                        "Only rely on the evidence provided."
+                        "Only rely on the evidence provided. "
+                        f"Write the entire response in {response_language}, regardless of the "
+                        "language the evidence snippets are written in. Keep the heading "
+                        "'Recommended next steps:' in English even when the rest of the response "
+                        "is in Japanese, since it is checked verbatim downstream."
                     ),
                 },
                 {
