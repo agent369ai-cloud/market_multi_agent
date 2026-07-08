@@ -33,7 +33,11 @@ source .venv/bin/activate   # .venv\Scripts\Activate.ps1 on Windows
 pip install -r requirements.txt
 ```
 
-2. Create a `.env` file (see `.env` for the required keys: `GROQ_API_KEY`, `COHERE_API_KEY`, `PINECONE_API_KEY`, `PINECONE_ENV`).
+2. Copy `.env.example` to `.env` and fill in real values for `GROQ_API_KEY`, `COHERE_API_KEY`, `PINECONE_API_KEY`, `PINECONE_ENV`:
+
+```bash
+cp .env.example .env
+```
 
 3. Start the local Postgres database:
 

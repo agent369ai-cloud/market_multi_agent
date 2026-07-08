@@ -20,6 +20,7 @@ class Settings:
         "DATABASE_URL", "postgresql://ichiba:ichiba_dev_pw@localhost:5432/ichiba"
     )
     LISTING_API_BASE_URL = os.getenv("LISTING_API_BASE_URL", "http://127.0.0.1:8100")
+    LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
     ENV = os.getenv("ENV", "dev")
 
 settings = Settings()

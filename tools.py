@@ -1,4 +1,5 @@
 
+import logging
 from typing import List, Dict, Any, Optional
 
 import cohere
@@ -8,6 +9,8 @@ from psycopg.rows import dict_row
 from pinecone import Pinecone
 
 from config import settings
+
+logger = logging.getLogger(__name__)
 
 _cohere_client = cohere.ClientV2(api_key=settings.COHERE_API_KEY) if settings.COHERE_API_KEY else None
 _pinecone_index = (
@@ -35,6 +38,7 @@ _FALLBACK_DOCS = [
 
 def search_documents(query: str) -> List[Dict[str, Any]]:
     if not _cohere_client or not _pinecone_index:
+        logger.warning("search_documents: Cohere/Pinecone not configured, using fallback docs")
         return _FALLBACK_DOCS
 
     try:
@@ -64,6 +68,7 @@ def search_documents(query: str) -> List[Dict[str, Any]]:
             for match in matches
         ]
     except Exception:
+        logger.exception("search_documents: Cohere/Pinecone call failed for query=%r, using fallback docs", query)
         return _FALLBACK_DOCS
 
 _FALLBACK_SQL = [
@@ -125,6 +130,7 @@ def query_sql(merchant_id: str, route: str = "visibility_issue") -> List[Dict[st
                         for row in rows
                     ]
     except Exception:
+        logger.exception("query_sql: Postgres query failed for merchant_id=%r route=%r, using fallback", merchant_id, route)
         return _FALLBACK_SQL
 
 _FALLBACK_API = [
@@ -166,6 +172,7 @@ def call_listing_api(merchant_id: str) -> List[Dict[str, Any]]:
             }
         ]
     except Exception:
+        logger.exception("call_listing_api: request to listing service failed for merchant_id=%r, using fallback", merchant_id)
         return _FALLBACK_API
 
 def load_memory(session_id: Optional[str]) -> List[Dict[str, Any]]:
@@ -196,6 +203,7 @@ def load_memory(session_id: Optional[str]) -> List[Dict[str, Any]]:
             for row in rows
         ]
     except Exception:
+        logger.exception("load_memory: Postgres query failed for session_id=%r, returning no memory", session_id)
         return []
 
 def save_memory(session_id: Optional[str], merchant_id: str, route: str, query: str, final_answer: str) -> None:
@@ -211,4 +219,4 @@ def save_memory(session_id: Optional[str], merchant_id: str, route: str, query: 
                     (session_id, merchant_id, route, query, final_answer),
                 )
     except Exception:
-        pass
+        logger.exception("save_memory: failed to persist turn for session_id=%r merchant_id=%r", session_id, merchant_id)

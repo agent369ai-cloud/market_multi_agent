@@ -7,6 +7,7 @@ local Postgres data as the SQL agent.
 
 Run with: uvicorn listing_api_service.main:app --port 8100
 """
+import logging
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -18,6 +19,12 @@ from fastapi import FastAPI, HTTPException
 from psycopg.rows import dict_row
 
 from config import settings
+
+logging.basicConfig(
+    level=settings.LOG_LEVEL,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Listing Status API (mock external service)")
 
@@ -39,6 +46,7 @@ def indexing_status(merchant_id: str):
             row = cur.fetchone()
 
     if not row:
+        logger.warning("indexing_status: no listing found for merchant_id=%r", merchant_id)
         raise HTTPException(status_code=404, detail=f"No listing found for merchant {merchant_id}")
 
     if row["listing_status"] == "pending_moderation" or not row["category"]:

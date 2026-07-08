@@ -1,3 +1,4 @@
+import logging
 from typing import Dict, Any, List
 
 from openai import OpenAI
@@ -5,6 +6,8 @@ from openai import OpenAI
 from config import settings
 from prompts import render as render_prompt
 from tools import search_documents, query_sql, call_listing_api, load_memory, save_memory
+
+logger = logging.getLogger(__name__)
 
 groq_client = OpenAI(api_key=settings.GROQ_API_KEY, base_url=settings.GROQ_API_BASE)
 
@@ -20,6 +23,7 @@ def router_agent(state: Dict[str, Any]) -> Dict[str, Any]:
     else:
         route = "general_support"
 
+    logger.info("router_agent: query=%r -> route=%r", state["query"], route)
     return {"route": route}
 
 def planner_agent(state: Dict[str, Any]) -> Dict[str, Any]:
@@ -131,6 +135,7 @@ def synthesizer_agent(state: Dict[str, Any]) -> Dict[str, Any]:
         )
         draft_answer = completion.choices[0].message.content
     except Exception:
+        logger.exception("synthesizer_agent: Groq call failed for query=%r, using template fallback", query)
         draft_answer = _template_answer(query, route, evidence)
 
     return {
@@ -149,6 +154,8 @@ def critic_agent(state: Dict[str, Any]) -> Dict[str, Any]:
         issues.append("No actionable steps present.")
 
     approved = len(issues) == 0
+    if not approved:
+        logger.warning("critic_agent: rejected draft, issues=%s", issues)
 
     return {
         "approved": approved,
