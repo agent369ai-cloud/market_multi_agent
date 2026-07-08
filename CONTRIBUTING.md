@@ -1,6 +1,6 @@
-# Contributing to Ichiba Merchant Support Assistant
+# Contributing to Market Merchant Support Assistant
 
-Thank you for your interest in contributing to the Ichiba Merchant Support Assistant project.
+Thank you for your interest in contributing to the Market Merchant Support Assistant project.
 
 ## How to contribute
 

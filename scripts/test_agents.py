@@ -41,7 +41,7 @@ SCENARIOS = [
         },
     },
     {
-        "name": "general_support (no route keywords -> sql/api empty)",
+        "name": "general_support (no route keywords -> sql empty)",
         "state": {
             "merchant_id": "M999",
             "language": "en",
@@ -54,7 +54,7 @@ SCENARIOS = [
 
 def run_full_pipeline():
     print("=" * 70)
-    print("FULL PIPELINE RUNS (router -> planner -> memory -> rag -> sql -> api")
+    print("FULL PIPELINE RUNS (router -> planner -> memory -> rag -> sql")
     print("                     -> synthesizer -> critic -> guardrail)")
     print("=" * 70)
 

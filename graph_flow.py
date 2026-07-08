@@ -7,7 +7,6 @@ from agents import (
     memory_agent,
     rag_agent,
     sql_agent,
-    api_agent,
     synthesizer_agent,
     critic_agent,
     guardrail_agent,
@@ -24,7 +23,6 @@ class GraphState(TypedDict, total=False):
     memory_results: List[Dict[str, Any]]
     doc_results: List[Dict[str, Any]]
     sql_results: List[Dict[str, Any]]
-    api_results: List[Dict[str, Any]]
     evidence: List[Dict[str, Any]]
     draft_answer: str
     approved: bool
@@ -39,7 +37,6 @@ def build_graph():
     graph.add_node("memory", memory_agent)
     graph.add_node("rag", rag_agent)
     graph.add_node("sql", sql_agent)
-    graph.add_node("api", api_agent)
     graph.add_node("synthesizer", synthesizer_agent)
     graph.add_node("critic", critic_agent)
     graph.add_node("guardrail", guardrail_agent)
@@ -50,8 +47,7 @@ def build_graph():
     graph.add_edge("planner", "memory")
     graph.add_edge("memory", "rag")
     graph.add_edge("rag", "sql")
-    graph.add_edge("sql", "api")
-    graph.add_edge("api", "synthesizer")
+    graph.add_edge("sql", "synthesizer")
     graph.add_edge("synthesizer", "critic")
 
     def critic_decision(state: GraphState):

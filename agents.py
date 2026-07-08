@@ -5,7 +5,7 @@ from openai import OpenAI
 
 from config import settings
 from prompts import render as render_prompt
-from tools import search_documents, query_sql, call_listing_api, load_memory, save_memory
+from tools import search_documents, query_sql, load_memory, save_memory
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +34,6 @@ def planner_agent(state: Dict[str, Any]) -> Dict[str, Any]:
             "load memory context",
             "search policy documents",
             "check merchant listing in SQL",
-            "check indexing API status",
             "synthesize answer"
         ]
     elif route == "campaign_issue":
@@ -42,7 +41,6 @@ def planner_agent(state: Dict[str, Any]) -> Dict[str, Any]:
             "load memory context",
             "search campaign policy docs",
             "check campaign SQL records",
-            "check moderation API",
             "synthesize answer"
         ]
     else:
@@ -70,14 +68,6 @@ def sql_agent(state: Dict[str, Any]) -> Dict[str, Any]:
         rows = []
     return {"sql_results": rows}
 
-def api_agent(state: Dict[str, Any]) -> Dict[str, Any]:
-    route = state["route"]
-    if route == "visibility_issue":
-        api_results = call_listing_api(state["merchant_id"])
-    else:
-        api_results = []
-    return {"api_results": api_results}
-
 def _template_answer(query: str, route: str, evidence: List[Dict[str, Any]]) -> str:
     answer_lines = [
         f"Merchant query: {query}",
@@ -103,7 +93,6 @@ def synthesizer_agent(state: Dict[str, Any]) -> Dict[str, Any]:
     evidence.extend(state.get("memory_results", []))
     evidence.extend(state.get("doc_results", []))
     evidence.extend(state.get("sql_results", []))
-    evidence.extend(state.get("api_results", []))
 
     query = state["query"]
     route = state["route"]

@@ -1,17 +1,19 @@
+name: market
+
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: ichiba-postgres
+    container_name: Market-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ichiba
-      POSTGRES_PASSWORD: ichiba_dev_pw
-      POSTGRES_DB: ichiba
+      POSTGRES_USER: Market
+      POSTGRES_PASSWORD: Market_dev_pw
+      POSTGRES_DB: Market
     ports:
       - "5432:5432"
     volumes:
-      - ichiba-pgdata:/var/lib/postgresql/data
+      - market-pgdata:/var/lib/postgresql/data
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
 
 volumes:
-  ichiba-pgdata:
+  market-pgdata:

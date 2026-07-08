@@ -1,18 +1,17 @@
-# Ichiba Merchant Support Assistant (IMSA)
+# Market Merchant Support Assistant (IMSA)
 
-A prototype multi-agent merchant support assistant built with FastAPI and a LangGraph-based agent workflow. It accepts merchant queries and routes them across agents for planning, RAG, SQL/API retrieval, synthesis, and guardrail review.
+A prototype multi-agent merchant support assistant built with FastAPI and a LangGraph-based agent workflow. It accepts merchant queries and routes them across agents for planning, RAG, SQL retrieval, synthesis, and guardrail review.
 
 ## Features
 
 - FastAPI backend with `/ask` support endpoint
 - Pydantic request/response validation
 - Modular agent graph pipeline defined in `graph_flow.py`
-- Includes router, planner, memory, RAG, SQL, API, synthesizer, critic, and guardrail agents
+- Includes router, planner, memory, RAG, SQL, synthesizer, critic, and guardrail agents
 - Synthesizer uses a real LLM call (Groq, OpenAI-compatible client)
 - RAG uses real semantic search (Cohere embeddings + Pinecone)
 - SQL uses a real Postgres database (via Docker Compose)
 - Memory persists real conversation turns per session in Postgres
-- Listing-status API is a real standalone FastAPI microservice (`listing_api_service/`), called over HTTP
 - React (Vite) frontend in `frontend/`
 
 ## Requirements
@@ -69,21 +68,17 @@ The app uses `config.py` for the following settings (all read from `.env`):
 - `COHERE_API_KEY`, `COHERE_EMBED_MODEL` — embeddings for RAG
 - `PINECONE_API_KEY`, `PINECONE_ENV`, `PINECONE_INDEX_NAME` — vector search for RAG
 - `DATABASE_URL` — Postgres connection string for the SQL and memory agents (defaults to the `docker-compose.yml` credentials)
-- `LISTING_API_BASE_URL` — base URL of the listing-status microservice (defaults to `http://127.0.0.1:8100`)
 - `ENV` — environment mode
 
 ## Run
 
-Three processes, each in its own terminal:
+Two processes, each in its own terminal:
 
 ```bash
 # 1. main app
 uvicorn app:app --reload --host 0.0.0.0 --port 8000
 
-# 2. listing-status microservice (used by the API agent)
-uvicorn listing_api_service.main:app --reload --host 0.0.0.0 --port 8100
-
-# 3. frontend (optional)
+# 2. frontend (optional)
 cd frontend && npm run dev
 ```
 
@@ -92,7 +87,6 @@ Then open:
 - Health check: `http://127.0.0.1:8000/`
 - Support endpoint: `http://127.0.0.1:8000/ask`
 - Interactive API docs: `http://127.0.0.1:8000/docs`
-- Listing-status microservice: `http://127.0.0.1:8100/`
 - Frontend (if running): `http://127.0.0.1:5173`
 
 ## Testing the agents
@@ -146,9 +140,8 @@ Response body:
 - `config.py` — application settings
 - `models.py` — request/response and evidence models
 - `graph_flow.py` — agent workflow graph definition
-- `agents.py` — agent implementations (router, planner, memory, RAG, SQL, API, synthesizer, critic, guardrail, memory_writer)
-- `tools.py` — data-source integrations used by the agents (Pinecone/Cohere RAG, Postgres SQL, Postgres-backed memory, HTTP call to the listing microservice)
-- `listing_api_service/` — standalone FastAPI microservice mocking an external listing-status API, backed by the same Postgres data
+- `agents.py` — agent implementations (router, planner, memory, RAG, SQL, synthesizer, critic, guardrail, memory_writer)
+- `tools.py` — data-source integrations used by the agents (Pinecone/Cohere RAG, Postgres SQL, Postgres-backed memory)
 - `requirements.txt` — Python dependencies
 - `docker-compose.yml`, `db/init.sql` — local Postgres database for the SQL and memory agents
 - `scripts/seed_pinecone.py` — creates and seeds the Pinecone index used for RAG

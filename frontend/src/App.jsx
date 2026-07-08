@@ -107,7 +107,7 @@ function App() {
   return (
     <div className="app-shell">
       <header className="app-header">
-        <h1>Ichiba Merchant Support Assistant</h1>
+        <h1>Market Merchant Support Assistant</h1>
         <p>Ask a merchant support question and see how the agent pipeline routes and answers it.</p>
       </header>
 

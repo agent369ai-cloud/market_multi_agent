@@ -3,7 +3,6 @@ import logging
 from typing import List, Dict, Any, Optional
 
 import cohere
-import httpx
 import psycopg
 from psycopg.rows import dict_row
 from pinecone import Pinecone
@@ -132,48 +131,6 @@ def query_sql(merchant_id: str, route: str = "visibility_issue") -> List[Dict[st
     except Exception:
         logger.exception("query_sql: Postgres query failed for merchant_id=%r route=%r, using fallback", merchant_id, route)
         return _FALLBACK_SQL
-
-_FALLBACK_API = [
-    {
-        "source": "listing_status_api",
-        "source_type": "api",
-        "confidence": 0.93,
-        "content": "Last indexing job status could not be retrieved from the listing API.",
-        "metadata": {"timestamp": None}
-    }
-]
-
-def call_listing_api(merchant_id: str) -> List[Dict[str, Any]]:
-    try:
-        resp = httpx.get(
-            f"{settings.LISTING_API_BASE_URL}/listings/{merchant_id}/indexing-status",
-            timeout=5,
-        )
-        resp.raise_for_status()
-        data = resp.json()
-
-        content = (
-            f"Last indexing job for merchant {merchant_id} (product {data['product_id']}) "
-            f"{data['last_indexing_job_status']}"
-        )
-        if data.get("failure_reason"):
-            content += f": {data['failure_reason']}"
-
-        return [
-            {
-                "source": "listing_status_api",
-                "source_type": "api",
-                "confidence": 0.93,
-                "content": content,
-                "metadata": {
-                    "timestamp": data.get("checked_at"),
-                    "status": data.get("last_indexing_job_status"),
-                },
-            }
-        ]
-    except Exception:
-        logger.exception("call_listing_api: request to listing service failed for merchant_id=%r, using fallback", merchant_id)
-        return _FALLBACK_API
 
 def load_memory(session_id: Optional[str]) -> List[Dict[str, Any]]:
     if not session_id:
